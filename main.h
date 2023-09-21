@@ -39,4 +39,6 @@ void Afficher(void);
 void Ajouter_plusieurs(void);
 char *sort_by_alpha(void);
 void Modifier();
+void Supprimer(void);
+void Rechercher(void);
 #endif
