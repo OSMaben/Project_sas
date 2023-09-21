@@ -325,6 +325,10 @@ void Supprimer(void)
     printf("Task with ID %d deleted successfully.\n", id);
 }
 
+
+
+
+//not completed yet
 void Rechercher(void)
 {
     typedef struct date
@@ -347,7 +351,8 @@ void Rechercher(void)
     todo_s todo_l;
 
     int choice, id;
-    char title[30];
+    char *title ;
+    title = (char *)malloc(50* sizeof(char));
     printf("which method you want to use to search:\n");
     printf("[1]. Identifiant\n");
     printf("[2]. Titre\n");
@@ -359,6 +364,20 @@ void Rechercher(void)
     while (fscanf(file, "la id: %d \nla tache: %[^\n] \nle titre: %[^\n] \nla discription: %[^\n] \ndeadline: %d:%d:%d \nStatus: %[^\n]\n",
                   &todo_l.id, todo_l.tach, todo_l.title, todo_l.discription, &new_dates.day, &new_dates.hour, &new_dates.minut, todo_l.statut) == 8)
     {
+        if(choice == 2)
+        {
+            printf("give the title of the task\n");
+            gets(title);
+            if(strncmp(title , todo_l.title , strlen(title)) == 0)
+            {
+                printf("la id: %d \nla tache: %s \nle titre: %s \nla discription: %s \ndeadline: %d:%d:%d \nStatus: %s\n",
+                  todo_l.id, todo_l.tach, todo_l.title, todo_l.discription, new_dates.day, new_dates.hour, new_dates.minut, todo_l.statut);
+            }
+            else
+                printf("The title %s Does Not Exist\n",title);
+                continue;
+        }
+
         if(choice == 1)
         {
             printf("give the ID of the task\n");
@@ -372,19 +391,7 @@ void Rechercher(void)
                 printf("The Id %d Does Not Exist",id);
                 continue;
         }
-        if(choice == 2)
-        {
-            printf("give the title of the task\n");
-            gets(title);
-            if(strcmp(title, todo_l.title) == 0)
-            {
-                printf("la id: %d \nla tache: %s \nle titre: %s \nla discription: %s \ndeadline: %d:%d:%d \nStatus: %s\n",
-                  todo_l.id, todo_l.tach, todo_l.title, todo_l.discription, new_dates.day, new_dates.hour, new_dates.minut, todo_l.statut);
-            }
-            else
-                printf("The title %s Does Not Exist\n",title);
-                continue;
-        }
+        
     }
 
    
