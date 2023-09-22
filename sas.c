@@ -2,6 +2,10 @@
 // main function
 
 todo todos; // rename the struct
+date dates;
+
+time_t now;
+struct tm *t;
 
 int main(void)
 {
@@ -47,6 +51,7 @@ void menu(void)
         Rechercher();
         break;
     case 7:
+        Statistiques();
         break;
     default:
         break;
@@ -55,6 +60,11 @@ void menu(void)
 }
 void ajoute(void)
 {
+    time(&now);
+    t = localtime(&now);
+    int day = t->tm_mday;
+    int hour = t->tm_hour;
+    int minut = t->tm_min;
 
     date date;
     printf("Donne un ID pour la tache:\n$> ");
@@ -87,7 +97,7 @@ void ajoute(void)
         exit(1);
     }
     fprintf(file, "la id: %d \nla tache: %s \nle titre: %s \nla discription: %s \ndeadline: %d:%d:%d \nStatus: %s\n",
-            todos.id, todos.tach, todos.title, todos.discription, date.day, date.hour, date.minut, todos.statut);
+            todos.id, todos.tach, todos.title, todos.discription, date.day + day, date.hour + hour, date.minut + minut, todos.statut);
 
     fclose(file);
 }
@@ -118,38 +128,66 @@ void Afficher(void)
     //, the size of the chars, the file to read from
     while (fgets(buffer, 255, info) != NULL)
     {
+        printf("====================================================\n");
         printf("%s", buffer);
     }
     fclose(info);
 
-    // printf("\n\nDo you want them Sorted ? Y or N \n $>");
-    // scanf("%s", &yN);
+    printf("\n\nDo you want them Sorted ? Y or N \n $>");
+    scanf("%s", &yN);
 
-    // if (yN == 'Y')
-    // {
-    // }
-    // else if (yN == 'N')
-    // {
-    //     printf("\033[0;32m");
-    //     printf("Done\n");
-    //     printf(" \033[0m");
-    // }
-    // else
-    // {
-    //     printf("\033[0;31m");
-    //     printf("please choose either yes or no\n");
-    //     printf(" \033[0m");
-    // }
+    if (yN == 'Y')
+    {
+        sort_by_alpha();
+    }
+    else if (yN == 'N')
+    {
+        printf("\033[0;32m");
+        printf("Done\n");
+        printf(" \033[0m");
+    }
+    else
+    {
+        printf("\033[0;31m");
+        printf("please choose either yes or no\n");
+        printf(" \033[0m");
+    }
 }
-char *sort_by_alpha(void)
+void sort_by_alpha(void)
 {
-    int i;
-    int j;
+    system("cls");
+    typedef struct todo_list
+    {
+        int id;
+        char tach[SIZE];
+        char title[30];
+        char discription[50];
+        date dates;
+        char statut[40];
+    }todo_s;
+
+    todo_s *tab;
+    todo_s temp_list;
+    tab = (todo_s *)malloc(100 * sizeof(todo_s));
+
+    if (tab != NULL)
+    {
+        free(tab);
+    }
+
+    time(&now);
+    t = localtime(&now);
+    int day = t->tm_mday;
+    int hour = t->tm_hour;
+    int minut = t->tm_min;
+
+    int i = 0, n; // for sorting
+    int j;        // for sorting
+    int choice;
     char *temp;
     FILE *temp_file;
-    temp_file = fopen("temp.txt", "w");
-
     FILE *file;
+
     file = fopen("info.txt", "r");
     if (temp_file == NULL || file == NULL)
     {
@@ -157,18 +195,69 @@ char *sort_by_alpha(void)
         exit(EXIT_SUCCESS);
     }
 
-    i = 0;
-    // while (fgets(temp_file, 255, file) != NULL)
-    // {
-    // 	j = 1;
-    // 	if (strcmp(todos.tach, todos.tach + 1) > 0)
-    // 	{
-    // 		    temp = todos.tach + 1;
-    // 			todos.tach + 1 = todos.tach;
-    // 			todos.tach = temp;
-    // 	}
-    // 	i++;
-    // }
+    printf("which why you want to use to sort\n");
+    printf("[1]. Trier les tâches par ordre alphabétique.\n");
+    printf("[2]. Trier les tâches par deadline.\n");
+    printf("[3]. Afficher les tâches dont le deadline est dans 3 jours ou moins.\n $> ");
+    scanf("%d", &choice);
+
+    if (choice == 1)
+{
+    int n = 0; // Initialize n to 0
+    tab = (todo_s *)malloc(100 * sizeof(todo_s));  // Allocate memory for tab
+
+    while (fscanf(file, "la id: %d \nla tache: %[^\n] \nle titre: %[^\n] \nla discription: %[^\n] \ndeadline: %d:%d:%d \nStatus: %[^\n]\n",
+                    &tab[n].id, tab[n].tach, tab[n].title, tab[n].discription, &tab[n].dates.day, &tab[n].dates.hour, &tab[n].dates.minut, tab[n].statut) == 8)
+    {
+        n++;
+    }
+    // Sorting logic
+    int i, j;
+    for (i = 0; i < n - 1; i++)
+    {
+        for (j = 0; j < n - i - 1; j++)
+        {
+            if (strcmp(tab[j].tach, tab[j + 1].tach) > 0)
+            {
+                temp_list = tab[j];
+                tab[j] = tab[j + 1];
+                tab[j + 1] = temp_list;
+            }
+        }
+    }
+
+    // Printing tasks
+    for (i = 0; i < n; i++)
+    {
+        printf("==================================================\n");
+        printf("la id: %d \nla tache: %s \nle titre: %s \nla discription: %s \ndeadline: %d:%d:%d \nStatus: %s\n",
+                tab[i].id, tab[i].tach, tab[i].title, tab[i].discription, tab[i].dates.day, tab[i].dates.hour, tab[i].dates.minut, tab[i].statut);
+    }
+
+    // Free allocated memory for tab
+    free(tab);
+}
+
+
+    if (choice == 3)
+    {
+        while (fscanf(file, "la id: %d \nla tache: %[^\n] \nle titre: %[^\n] \nla discription: %[^\n] \ndeadline: %d:%d:%d \nStatus: %[^\n]\n",
+                      &todos.id, todos.tach, todos.title, todos.discription, &dates.day, &dates.hour, &dates.minut, todos.statut) == 8)
+        {
+            if (dates.day <= 3)
+            {
+                printf("====================================================\n");
+                printf("la id: %d \nla tache: %s \nle titre: %s \nla discription: %s \ndeadline: %d:%d:%d \nStatus: %s\n",
+                       todos.id, todos.tach, todos.title, todos.discription, dates.day, dates.hour, dates.minut, todos.statut);
+            }
+            else
+            {
+                printf("\033[0;32m");
+                printf("this task is more then 2 days\n");
+                printf("\033[0m");
+            }
+        }
+    }
 }
 void Modifier(void)
 {
@@ -269,7 +358,6 @@ void Modifier(void)
         printf("Task with ID %d not found.\n", id);
     }
 }
-
 void Supprimer(void)
 {
     system("cls");
@@ -324,11 +412,7 @@ void Supprimer(void)
     rename("temp.txt", "info.txt");
     printf("Task with ID %d deleted successfully.\n", id);
 }
-
-
-
-
-//not completed yet
+// not completed yet
 void Rechercher(void)
 {
     typedef struct date
@@ -351,8 +435,8 @@ void Rechercher(void)
     todo_s todo_l;
 
     int choice, id;
-    char *title ;
-    title = (char *)malloc(50* sizeof(char));
+    char *title;
+    title = (char *)malloc(50 * sizeof(char));
     printf("which method you want to use to search:\n");
     printf("[1]. Identifiant\n");
     printf("[2]. Titre\n");
@@ -361,38 +445,122 @@ void Rechercher(void)
     FILE *file = fopen("info.txt", "r");
     FILE *file2 = fopen("temp.txt", "w");
 
-    while (fscanf(file, "la id: %d \nla tache: %[^\n] \nle titre: %[^\n] \nla discription: %[^\n] \ndeadline: %d:%d:%d \nStatus: %[^\n]\n",
-                  &todo_l.id, todo_l.tach, todo_l.title, todo_l.discription, &new_dates.day, &new_dates.hour, &new_dates.minut, todo_l.statut) == 8)
+    if (choice == 2)
     {
-        if(choice == 2)
+        while (fscanf(file, "la id: %d \nla tache: %[^\n] \nle titre: %[^\n] \nla discription: %[^\n] \ndeadline: %d:%d:%d \nStatus: %[^\n]\n",
+                      &todo_l.id, todo_l.tach, todo_l.title, todo_l.discription, &new_dates.day, &new_dates.hour, &new_dates.minut, todo_l.statut) == 8)
         {
             printf("give the title of the task\n");
-            gets(title);
-            if(strncmp(title , todo_l.title , strlen(title)) == 0)
+            scanf("%s", title);
+            if (strcmp(title, todos.title) == 0)
             {
+                printf("====================================================\n");
                 printf("la id: %d \nla tache: %s \nle titre: %s \nla discription: %s \ndeadline: %d:%d:%d \nStatus: %s\n",
-                  todo_l.id, todo_l.tach, todo_l.title, todo_l.discription, new_dates.day, new_dates.hour, new_dates.minut, todo_l.statut);
+                       todo_l.id, todo_l.tach, todo_l.title, todo_l.discription, new_dates.day, new_dates.hour, new_dates.minut, todo_l.statut);
             }
             else
-                printf("The title %s Does Not Exist\n",title);
+            {
+                printf("The title %s Does Not Exist\n", title);
                 continue;
+            }
         }
 
-        if(choice == 1)
+        while (fscanf(file, "la id: %d \nla tache: %[^\n] \nle titre: %[^\n] \nla discription: %[^\n] \ndeadline: %d:%d:%d \nStatus: %[^\n]\n",
+                      &todo_l.id, todo_l.tach, todo_l.title, todo_l.discription, &new_dates.day, &new_dates.hour, &new_dates.minut, todo_l.statut) == 8)
         {
-            printf("give the ID of the task\n");
-            scanf("%d", &id);
-            if(id == todo_l.id)
+            if (choice == 1)
             {
-                printf( "la id: %d \nla tache: %s \nle titre: %s \nla discription: %s \ndeadline: %d:%d:%d \nStatus: %s\n",
-                  todo_l.id, todo_l.tach, todo_l.title, todo_l.discription, new_dates.day, new_dates.hour, new_dates.minut, todo_l.statut);
+                printf("give the ID of the task\n");
+                scanf("%d", &id);
+                if (id == todo_l.id)
+                {
+                    printf("====================================================\n");
+                    printf("la id: %d \nla tache: %s \nle titre: %s \nla discription: %s \ndeadline: %d:%d:%d \nStatus: %s\n",
+                           todo_l.id, todo_l.tach, todo_l.title, todo_l.discription, new_dates.day, new_dates.hour, new_dates.minut, todo_l.statut);
+                }
+                else
+                    printf("The Id %d Does Not Exist", id);
+                continue;
+            }
+        }
+    }
+    fclose(file);
+    fclose(file2);
+    remove("info.txt");
+    rename("temp.txt", "info.txt");
+}
+
+void Statistiques(void)
+{
+    int exists = 0;
+    int dn = 0, dng = 0;
+    int choice;
+    printf("1. Afficher le nombre total des tâches.\n");
+    printf("2. Afficher le nombre de tâches complètes et incomplètes.\n");
+    printf("3. Afficher le nombre de jours restants jusqu'au délai de chaque tâche.\n");
+    scanf("%d", &choice);
+
+    FILE *file = fopen("info.txt", "r");
+
+    if (choice == 1)
+    {
+        while (fscanf(file, "la id: %d \nla tache: %[^\n] \nle titre: %[^\n] \nla discription: %[^\n] \ndeadline: %d:%d:%d \nStatus: %[^\n]\n",
+                      &todos.id, todos.tach, todos.title, todos.discription, &dates.day, &dates.hour, &dates.minut, todos.statut) == 8)
+        {
+            if (todos.id)
+            {
+                exists++;
             }
             else
-                printf("The Id %d Does Not Exist",id);
-                continue;
+            {
+                printf("there is not ID\n");
+                break;
+            }
         }
-        
+        printf("\nthe number of taches is $> %d\n", exists);
+    }
+    if (choice == 2)
+    {
+        while (fscanf(file, "la id: %d \nla tache: %[^\n] \nle titre: %[^\n] \nla discription: %[^\n] \ndeadline: %d:%d:%d \nStatus: %[^\n]\n",
+                      &todos.id, todos.tach, todos.title, todos.discription, &dates.day, &dates.hour, &dates.minut, todos.statut) == 8)
+        {
+            if (strcmp(todos.statut, doing) == 0)
+            {
+                dng++;
+            }
+            else if (strcmp(todos.statut, done) == 0)
+            {
+                dn++;
+            }
+            else
+            {
+                printf("\033[0;32m");
+                printf("the tasks are done\n");
+                printf("\033[0m");
+            }
+        }
+        printf("here is the number of tasks doing %d\n", dng);
+        printf("here is the number of task done %d\n", dn);
     }
 
-   
+    else if (choice == 3)
+    {
+        // time_t now;
+        // struct tm *t;
+
+        time(&now);
+        t = localtime(&now);
+        int day = t->tm_mday;
+        int hour = t->tm_hour;
+        int minut = t->tm_min;
+
+        while (fscanf(file, "la id: %d \nla tache: %[^\n] \nle titre: %[^\n] \nla discription: %[^\n] \ndeadline: %d:%d:%d \nStatus: %[^\n]\n",
+                      &todos.id, todos.tach, todos.title, todos.discription, &dates.day, &dates.hour, &dates.minut, todos.statut) == 8)
+        {
+            printf("====================================================\n");
+            printf("la id: %d \nla tache: %s \nle titre: %s \nla discription: %s \ndeadline: %d:%d:%d \nStatus: %s\n",
+                   todos.id, todos.tach, todos.title, todos.discription, abs(dates.day - day), abs(dates.hour - hour), abs(dates.minut - minut), todos.statut);
+        }
+        // printf("Tâche ID: %d, Jours restants: %d\n", todos.id, daysDifference);
+    }
 }
