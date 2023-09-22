@@ -12,7 +12,6 @@ int main(void)
     menu();
 }
 
-// menu function
 void menu(void)
 {
     int s;
@@ -26,7 +25,8 @@ void menu(void)
     printf("[4] Modifier une tache\n");
     printf("[5] Supprimer une tache par identifiant\n");
     printf("[6] Rechercher les Taches\n");
-    printf("[7] Statistiques\n ==>");
+    printf("[7] Statistiques\n");
+    printf("[8] Quit\n ==>");
 
     scanf("%d", &s);
 
@@ -53,6 +53,9 @@ void menu(void)
     case 7:
         Statistiques();
         break;
+    case 8:
+    return;
+        break;
     default:
         break;
     }
@@ -60,6 +63,7 @@ void menu(void)
 }
 void ajoute(void)
 {
+    FILE *file1 = fopen("info.txt", "r");
     time(&now);
     t = localtime(&now);
     int day = t->tm_mday;
@@ -69,6 +73,22 @@ void ajoute(void)
     date date;
     printf("Donne un ID pour la tache:\n$> ");
     scanf("%d", &todos.id);
+    if(todos.id)
+    {
+        while(fscanf(file1, "la id: %d \nla tache: %[^\n] \nle titre: %[^\n] \nla discription: %[^\n] \ndeadline: %d:%d:%d \nStatus: %[^\n]\n",
+                        &todos.id, todos.tach, todos.title, todos.discription, &dates.day, &dates.hour, &dates.minut, todos.statut) == 8)
+            {
+                if (todos.id  == todos.id)
+                {
+                   printf("this ID is Already Exists\n");
+                   printf("give an other ID \n $> ");
+                    scanf("%d", &todos.id);
+                   break;
+                }
+                else
+                    continue;
+            }
+    }
     getchar(); // this is used to take the \n when the user press inter
     printf("La tache:\n$> ");
     gets(todos.tach);
@@ -128,7 +148,6 @@ void Afficher(void)
     //, the size of the chars, the file to read from
     while (fgets(buffer, 255, info) != NULL)
     {
-        printf("====================================================\n");
         printf("%s", buffer);
     }
     fclose(info);
@@ -164,11 +183,10 @@ void sort_by_alpha(void)
         char discription[50];
         date dates;
         char statut[40];
-    }todo_s;
+    } todo_s;
 
     todo_s *tab;
     todo_s temp_list;
-    tab = (todo_s *)malloc(100 * sizeof(todo_s));
 
     if (tab != NULL)
     {
@@ -181,10 +199,10 @@ void sort_by_alpha(void)
     int hour = t->tm_hour;
     int minut = t->tm_min;
 
-    int i = 0, n; // for sorting
-    int j;        // for sorting
+   
     int choice;
     char *temp;
+    char buffer[255];
     FILE *temp_file;
     FILE *file;
 
@@ -202,7 +220,7 @@ void sort_by_alpha(void)
     scanf("%d", &choice);
 
     if (choice == 1)
-{
+    {
     int n = 0; // Initialize n to 0
     tab = (todo_s *)malloc(100 * sizeof(todo_s));  // Allocate memory for tab
 
@@ -236,8 +254,44 @@ void sort_by_alpha(void)
 
     // Free allocated memory for tab
     free(tab);
-}
+    }
 
+    if(choice == 2)
+    {
+        int n = 0;
+         tab = (todo_s *)malloc(100 * sizeof(todo_s));  // Allocate memory for tab
+        while(fscanf(file, "la id: %d \nla tache: %[^\n] \nle titre: %[^\n] \nla discription: %[^\n] \ndeadline: %d:%d:%d \nStatus: %[^\n]\n",
+                    &tab[n].id, tab[n].tach, tab[n].title, tab[n].discription, &tab[n].dates.day, &tab[n].dates.hour, &tab[n].dates.minut, tab[n].statut) == 8)
+        {
+            n++;
+        }
+
+        int i = 0;
+        while(i < n)
+        {
+           int j = 0;
+            while(j < n)
+            {
+                if(tab[j].dates.day > tab[j + 1].dates.day)
+                {
+                    temp_list = tab[j];
+                    tab[j] = tab[j + 1];
+                    tab[j + 1] = temp_list;
+                }
+                j++;
+            }
+            i++;
+        }
+        i = 0;
+        while(i < n)
+        {
+            printf("=======================================\n");
+            printf("la id: %d \nla tache: %s \nle titre: %s \nla discription: %s \ndeadline: %d:%d:%d \nStatus: %s\n",
+                tab[i].id, tab[i].tach, tab[i].title, tab[i].discription, tab[i].dates.day, tab[i].dates.hour, tab[i].dates.minut, tab[i].statut);
+            i++;
+        }
+        free(tab);
+    }
 
     if (choice == 3)
     {
@@ -412,7 +466,6 @@ void Supprimer(void)
     rename("temp.txt", "info.txt");
     printf("Task with ID %d deleted successfully.\n", id);
 }
-// not completed yet
 void Rechercher(void)
 {
     typedef struct date
@@ -489,7 +542,6 @@ void Rechercher(void)
     remove("info.txt");
     rename("temp.txt", "info.txt");
 }
-
 void Statistiques(void)
 {
     int exists = 0;
