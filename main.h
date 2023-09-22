@@ -5,7 +5,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
-
+#include <time.h>
 #define done "done"
 #define doing "doing"
 #define SIZE 100
@@ -31,14 +31,20 @@ typedef struct todo_list
 // red color \033[0;31m
 //white \033[0m
 
+//time to see the deadline for each task
+// = localtime(&now);
+// t->tm_mday;  //for the day
+// t->tm_hour; // for hour
+// t->tm_min; // for minut
 
 //used functions
 void menu(void);
 void ajoute(void);
 void Afficher(void);
 void Ajouter_plusieurs(void);
-char *sort_by_alpha(void);
+void sort_by_alpha(void);
 void Modifier();
 void Supprimer(void);
 void Rechercher(void);
+void Statistiques(void);
 #endif
